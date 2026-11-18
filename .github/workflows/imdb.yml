@@ -1,5 +1,5 @@
 # IMDb indeks za Kino na Samsung TV-u: svaki dan iz IMDb-ovih skupova podataka (osobna nekomercijalna upotreba).
-# Rezultat je na grani "data" (jedan commit, prepisuje se — povijest ne raste). Repozitorij je privatan.
+# Rezultat je na grani "data" (jedan commit, prepisuje se — povijest ne raste), šifriran tajnom IMDB_KEY.
 name: IMDb indeks
 on:
   schedule:
@@ -17,12 +17,14 @@ jobs:
         with:
           node-version: 22
       - run: node build.mjs
+        env:
+          IMDB_KEY: ${{ secrets.IMDB_KEY }}
       - name: Objavi na granu data
         run: |
           cd out
           git init -q -b data
           git config user.name "kino-imdb"
           git config user.email "kino-imdb@users.noreply.github.com"
-          git add imdb.json.gz meta.json
+          git add imdb.bin meta.json
           git commit -qm "IMDb indeks $(date -u +%F)"
           git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" data
